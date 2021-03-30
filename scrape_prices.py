@@ -10,6 +10,9 @@ source_url = 'https://www.eia.gov/dnav/pet/pet_pri_gnd_dcus_sny_w.htm'
 gas_url = 'https://www.eia.gov/dnav/pet/pet_pri_gnd_a_epm0_pte_dpgal_m.htm'
 diesel_url = 'https://www.eia.gov/dnav/pet/pet_pri_gnd_a_epd2d_pte_dpgal_m.htm'
 
+
+"""Connect to url and parse HTML structure"""
+
 def read_url_html(url):
     r = requests.get(url)
     if r.status_code == 200:
@@ -20,6 +23,9 @@ def read_url_html(url):
     # or html=urlopen(m_area_url)
     print('Dataset name: {}'.format(soup.title.text))
     return soup
+
+
+"""Locate data URLs and append all in one dataframe"""
 
 def find_all_data(url):
     soup = read_url_html(url)
@@ -48,8 +54,10 @@ def find_all_data(url):
         df_all.drop('Series Name', inplace=True, axis=1)
     return df_all
 
+# Executre functions
 gas_df = find_all_data(gas_url)
 diesel_df = find_all_data(diesel_url)
+
 
 """Save results"""
 
@@ -62,9 +70,7 @@ diesel_df.to_csv(diesel_csv, index=False)
 gas_df.to_csv(gas_csv, index=False)
 
 
-"""Statistics per State"""
-# states = ['California','Colorado','Florida','Massachusetts','Minnesota',
-#          'New York','Ohio','Texas','Washington']
+"""Calculate absolute price variation for each State and return a csv"""
 
 def state_variations(gas_df):
     df_states = gas_df.loc[gas_df['Aggregation']=='States']
@@ -79,7 +85,9 @@ def state_variations(gas_df):
         # Csv write row
     with open(price_var, 'w+') as pv:
         pv.write(output)
-
+        
+        
+"""Calculate average price per state in last trimester and return min value"""
 
 def state_min_avglast_3months(gas_df):
     df_states = gas_df.loc[gas_df['Aggregation']=='States']
